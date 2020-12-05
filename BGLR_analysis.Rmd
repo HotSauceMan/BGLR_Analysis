@@ -1,0 +1,552 @@
+---
+title: "BGLR_analysis"
+author: "Ambar Mishra"
+date: "10/29/2020"
+output: html_document
+---
+
+```{r}
+# rm(list = ls())
+```
+
+# Cleanup and downloading libraries
+Before working with the datasets, let us clear out the library and load the BGLR library. 
+```{r}
+# library(tidyverse)
+# library(BGLR)
+```
+
+# Loading datasets
+First, I will load all 3 datasets in order to perform the BGLR analysis on these datasets. 
+
+Loading the pig_genotype data:
+
+```{r}
+first_data = read.csv("pig_genotype.csv")
+# View(first_data)
+```
+
+Loading the pig_phenotype data:
+
+```{r}
+second_data = read.csv("pig_phenotype.csv")
+```
+
+Loading the pig_map data:
+
+```{r}
+ #third_data = read.csv("pig_map.csv")
+ #View(third_data)
+```
+
+
+# Test datasets and Cleaning datasets
+
+Here, we are creating a testing set with 300 observations from pig_genotype file
+(BGLR manual stated to take 300 testing set observation)
+
+```{r}
+test_genotype <- first_data[sample(nrow(first_data), 300, replace = FALSE, prob = NULL),]
+```
+
+Here, we remove any NA values located in the test_genotype file.
+
+```{r}
+test_genotype_NA <- na.omit(first_data)
+```
+
+
+
+Let us do this for the pig phenotype file
+
+```{r}
+# test_phenotype <- second_data[sample(nrow(second_data), 300, replace = FALSE, prob = NULL),]
+```
+
+Removing the NA values.
+
+```{r}
+# test_phenotype_NA <- na.omit(test_phenotype)
+```
+
+
+Let us do this for the pig map file:
+
+```{r}
+# test_map <- third_data[sample(nrow(third_data), 300, replace = FALSE, prob = NULL),]
+```
+
+```{r}
+# test_map_NA <- na.omit(test_map)
+```
+
+
+## Running BGLR and BLR on Genotype dataset
+
+Before running, I must not exhaust vector memory. Time set a new size for R. 
+
+```{r}
+# Sys.setenv('R_MAX_VSIZE'=32000000000)
+```
+
+Let me clean some parts of the dataset before I run BGLR. I am going to convert the dataset into a matrix:
+
+```{r}
+y_matrix = data.matrix(first_data)
+y_matrix_new <- y_matrix[,-1]
+# View(y_matrix_new)
+```
+
+```{r}
+y_value = y_matrix[,1]
+# View(y_value)
+```
+
+Let us create an incidence matrix for the genotype dataset:
+
+```{r}
+library(reshape2)
+```
+
+Our incidence matrix is mimicking Wheat.A
+
+```{r}
+b <- scale(y_matrix_new)
+# View(b)
+```
+
+```{r}
+# genotype_incidence_matrix <- table(melt(y_matrix, id.var="id")[-2])
+# View(genotype_incidence_matrix)
+```
+
+
+```{r}
+# y = y_matrix[,1]
+# View(y)
+```
+
+```{r}
+x = scale(y_matrix)
+# View(x)
+```
+
+
+Here, we have conducted the BGLR analysis on the first dataset, which is the test_genotype dataset.
+
+```{r}
+# fm=BGLR(y=y,ETA=list(list(X=x,model='BayesB',saveEffects=TRUE)),nIter=12000,thin=2,burnIn=2000)
+```
+
+Here is a plot for FM:
+```{r}
+# plot(fm)
+```
+
+It is a straight, thick line with all the points creating a strong relationship between prediction and response. 
+
+Here is a comparison of the fm plot to the y_matrix plot:
+
+```{r}
+# Use the readBinMat function
+ # plot(y_matrix[,1],type='o',col=4)
+```
+
+Let us find get the variances of the dataset. We will set B equal to y_matrix since the read_bin function was unable to work on the csv files. Hence, we shall see the variances of this dataset and plot it to see the spread. 
+
+
+```{r}
+ #VAR=getVariances(B=y_matrix,X=x,sets=sample(1:20,size=1279,replace=T))
+ #head(VAR)
+# plot(VAR[,"total"])
+```
+
+This graph has no linearity or and there is no constant of linearity. Hence, the variances do not have any linearity and the errors are not normally distributed. 
+
+
+
+
+```{r}
+# y_matrix_rows <- head(y_matrix,50)
+```
+
+
+
+
+Let us plot using BGLR:
+```{r}
+# out=BLR(y=y_matrix ,XL= NULL)
+## End(Not run)
+```
+
+We have efficiently ran the BLR function on y_matrix. Plotting the function did not work since there were no x and y coordinates. 
+
+
+Let us predict using BGLR:
+
+```{r}
+# out=BLR(y=wheat.Y[,1],XL=wheat.X)
+ #predict(fm)
+```
+
+We are given predictions for each element contained in the dataset which had gone through the BGLR function. 
+
+
+Let us obtain the residuals:
+```{r}
+#residuals(fm)
+```
+
+
+Here are the residuals for the values of fm. Now, let us see the a plot of these residuals. 
+
+
+```{r}
+# plot_residuals <- residuals(fm)
+# plot(plot_residuals, main = "Residual plot", col = 'red')
+```
+
+We have a huge scatter of the residuals throughout the entire graph. There is no indication of any correlation or association in this graph. 
+
+
+Let us obtain the summary of the BLR method:
+```{r}
+#summary(out)
+```
+
+Here is another summary of the genotype dataset with the BGLR method
+
+```{r}
+#summary(fm)
+```
+
+Now, we shall conduct the BGLR function and BLR function to the other 2 datasets. 
+
+
+
+
+
+
+
+## Phenotype Dataset (BGLR)
+
+Now, we can convert the phenotype data into matricies:
+
+```{r}
+a_matrix = data.matrix(second_data)
+View(a_matrix)
+```
+
+```{r}
+# b = a_matrix[, 1]
+# View(b)
+```
+
+Scaling the matrix
+
+```{r}
+# a = a_matrix[,1]
+# View(a)
+# a = scale(a_matrix)
+# View(a)
+```
+
+Here we are conducting the BGLR analysis on the second dataset, which is the phenotype dataset. 
+
+```{r}
+# fm_2=BGLR(y=a,ETA=list(list(X=b,model='BayesB',saveEffects=TRUE)),nIter=12000,thin=2,burnIn=2000)
+```
+
+Now, we have successfully ran the BGLR model! Let us plot fm_2
+
+```{r}
+# plot(fm_2)
+```
+
+Very similar plot as the first fm.
+
+```{r}
+# plot(a,type='o',col=4)
+```
+
+Here is another graph given the index to its value. As we can see, the residuals are very spread apart with long distances for each point. 
+
+```{r}
+ # VAR_2 =getVariances(B=a_matrix,X=scale(a),sets=sample(1:20,size=1279,replace=T))
+ # head(VAR_2)
+ # plot(VAR_2[,"total"])
+```
+
+Plotting residuals:
+```{r}
+#  plot_residuals_2 <- residuals(fm_2)
+#  plot(plot_residuals_2, main = "residual plot for Phenotype")
+```
+
+Not as much spread but there is a decrease in the overall residuals.   
+
+Here are the points of the residuals:
+
+```{r}
+# residuals(fm_2)
+```
+
+
+Here is a summary of the dataset
+
+```{r}
+# summary(fm_2)
+```
+
+
+
+## Running BGLR on Map dataset
+
+Let us modify the Map dataset. 
+
+```{r}
+# map_matrix = data.matrix(third_data)
+```
+
+```{r}
+# modified_map = map_matrix[, 1]
+```
+
+
+```{r}
+# scaled_map = scale(map_matrix)
+# View(scaled_map)
+```
+
+Let us run the BGLR algorithm on the map dataset. 
+
+```{r}
+# fm_3=BGLR(y=modified_map,ETA=list(list(X=map_matrix,model='BayesB',saveEffects=TRUE)),nIter=12000,thin=2,burnIn=2000)
+```
+
+Let us attempt to plot fm_3
+
+```{r}
+# plot(fm_3)
+```
+
+Nothing too special, but just a normal line indicating that VarE is increasing. 
+
+```{r}
+# plot(scaled_map, type = "o", col = 1)
+```
+
+Must interpret this graph type, as there are too many thick lines and dots probably indicating the spread of variances.
+
+Use for possible analysis:
+
+```{r}
+  # VAR_3 =getVariances(B=map_matrix,X=modified_map,sets=sample(1:20,size=1279,replace=T))
+  # head(VAR_2)
+  # plot(VAR_2[,"total"])
+```
+
+Plotting the residuals
+
+```{r}
+# plot_residuals_3 <- residuals(fm_3)
+#  plot(plot_residuals_3, main = "residual plot for Phenotype")
+```
+
+Not a great representation of the residual plots. 
+
+## Running Gibbs Sampler on Genotype dataset
+
+Let us run the Gibbs sampler on the genotype dataset. Unable to run due to "vector memory exhausted". I will just code the possible Gibbs sampler code i would utilize in order to run this code.  
+
+This will be running the BLR method for the genotype dataset with 700 iterations: 
+
+```{r}
+# Possibly change to matrix?
+# fm_BLR <-BLR(y=y,XL=x,,
+#     prior=list(varE=list(df=3,S=0.25),
+#     varU=list(df=3,S=0.63),
+#     lambda=list(shape=0.52,rate=1e-4,
+#     type='random',value=30)),
+#     nIter=700,burnIn=500,thin=1)
+```
+
+```{r}
+# whichNa<-sample(1:length(y),size=100,replace=FALSE)
+```
+
+Finding the Mean Squared Error test statistic value:
+
+```{r}
+#  MSE.tst<-mean((fm_BLR$yHat[whichNa]-y[whichNa])^2)
+#  MSE.tst
+```
+
+Finding the mean squared error trn value:
+
+```{r}
+ # MSE.trn<-mean((fm_BLR$yHat[-whichNa]-y[-whichNa])^2)
+#  MSE.trn
+```
+
+Finding the cor test value:
+
+```{r}
+#  COR.tst<-cor(fm_BLR$yHat[whichNa],y[whichNa])
+#  COR.tst
+```
+
+
+Finding the Cor trn value
+
+```{r}
+ # COR.trn<-cor(fm_BLR$yHat[-whichNa],y[-whichNa])
+ # COR.trn
+```
+
+
+Forming a plot with the genotypes and the genotypes predicted value. 
+
+```{r}
+#  plot(fm_BLR$yHat~y, xlab = "Genotype", ylab = "Pred. Phenotype Value", cex = 0.8)
+ # points(x = y[whichNa], y = fm_BLR$yHat[whichNa], col = 2, cex = 0.8, pch =19)
+```
+
+It may indicate red, but that is only warning messages. 
+
+Most of the points lie on the line of the predicted genotype value, indicating a positive relationship.
+
+
+## Running Gibbs Sampler on Phenotype dataset
+Let us run the Gibbs sampler on the phenotype dataset.  I will just code the possible Gibbs sampler code i would utilize in order to run this code.  
+
+This will be running the BLR method for the phenotype dataset with 7 iterations: 
+
+```{r}
+ # fm_BLR_2 <- BLR(y=b,XL=a,,
+ #    prior=list(varE=list(df=3,S=0.25),
+ #    varU=list(df=3,S=0.63),
+ #    lambda=list(shape=0.52,rate=1e-4,
+ #    type='random',value=30)),
+ #    nIter=8,burnIn=500,thin=1)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Conducting cross validation on Genotype dataset BGLR DOC WAY
+
+I will set up data parameters for cross validating the Genotype dataset. 
+
+```{r}
+library(BGLR)
+```
+
+```{r}
+nIter<-100 #For real data sets more samples are needed
+burnIn<-500
+thin<-10
+folds<-10
+```
+
+
+Let me set the prior BL list for this dataset:
+
+```{r}
+priorBL_1 <-list(
+varE_1 = list(df=3,S=2.5),
+varU_1 = list(df=3,S=0.63),
+lambda_1 = list(shape=0.52,rate=1e-5,value=20,type='random')
+)
+```
+
+Next part of cross validation, setting the seeds and placing the order of everything:
+
+```{r}
+set.seed(123) #Set seed for the random number generator
+sets_1 <-rep(1:10,60)[-1]
+sets_1 <-sets_1[order(runif(nrow(first_data)))]
+COR.CV_1 <-rep(NA,times=(folds+1))
+names(COR.CV_1) <-c(paste('fold=',1:folds,sep=''),'Pooled')
+w_1 <-rep(1/nrow(first_data),folds) ## weights for pooled correlations and MSE
+yHatCV_1 <-numeric()
+```
+
+Subset the columns in y_matrix (Genotype dataset)
+
+
+```{r}
+# new_y_matrix = y_matrix[, -c(3:42247)]
+# dim(new_y_matrix)
+```
+
+```{r}
+# dim(a_matrix)
+```
+
+Here is the for loop for running cross validation among the different folds located in the file. We will have 10 folds and only 300 iterations since the dataset can only provide as much. 
+
+```{r}
+# for(fold in 1:folds)
+# {
+#   yNa<-y_value
+#   whichNa<-which(sets_1==fold)
+#   yNa[whichNa]<- NA
+#   prefix<-paste('PM_BL','_fold_',fold,'_',sep='')
+#   fm_cv_geno <- BLR(y=yNa,XL=y_matrix_new, prior=priorBL_1,
+#                     nIter = nIter,burnIn = burnIn,thin = thin)
+#   yHatCV_1[whichNa] <- fm_cv_geno$yHat[fm_cv_geno$whichNa]
+#   w_1[fold] <- w_1[fold]*length(fm_cv_geno$whichNa)
+#   COR.CV_1[fold] <- cor(fm_cv_geno$yHat[fm_cv_geno$whichNa],y[whichNa])
+# }
+# break
+```
+
+When I set the iterations to 700, then the COR.CV_1 had 2 outputs for folds 1 and 2.This had stopped running because nu hat was negative. However, when I switched the iterations to 100, then the cross validation for loop went through 6 folds but the COR.CV_1 returned NA as the value for each fold. This stopped running due to the standard deviation equaling to zero.
+
+```{r}
+# View(y_matrix)
+```
+
+
+```{r}
+# COR.CV_1[1]<-mean(COR.CV_1[1])
+# COR.CV_1
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
