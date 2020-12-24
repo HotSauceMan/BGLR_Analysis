@@ -1,2 +1,2 @@
 # BGLR_Analysis
-Conducted a BGLR analysis for a sample dataset. 
+Conducted a BGLR analysis for a sample pig dataset as there are three files (genotype, phenotype and map data). The BGLR analysis had succesfully ran as my code contains the specific plots of the variances among the dataset. The last section contains a cross validation section where I set the phenotype dataset as my linear predictor. With the cross validation, I will study to see whether the phenotype dataset can predict or have any relation with the genotype dataset. 
